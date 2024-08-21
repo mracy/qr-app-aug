@@ -1,0 +1,33 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+client_id = "88ee8df2af931df9d3ef0aeb1ef84b32"
+name = "madolly-qr-app-aug"
+handle = "madolly-qr-app-aug"
+application_url = "https://reviewing-local-conversation-correlation.trycloudflare.com"
+embedded = true
+
+[build]
+automatically_update_urls_on_dev = true
+dev_store_url = "quickstart-c89f3673.myshopify.com"
+include_config_on_deploy = true
+
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = "read_customers,read_draft_orders,read_files,read_inventory,read_locations,read_orders,read_products,read_themes,write_customers,write_draft_orders,write_files,write_inventory,write_locations,write_orders,write_products,write_themes"
+
+[auth]
+redirect_urls = [
+  "https://reviewing-local-conversation-correlation.trycloudflare.com/auth/callback",
+  "https://reviewing-local-conversation-correlation.trycloudflare.com/auth/shopify/callback",
+  "https://reviewing-local-conversation-correlation.trycloudflare.com/api/auth/callback"
+]
+
+[webhooks]
+api_version = "2024-07"
+
+  [[webhooks.subscriptions]]
+  topics = [ "app/uninstalled" ]
+  uri = "/webhooks"
+
+[pos]
+embedded = false
