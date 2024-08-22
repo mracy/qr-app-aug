@@ -40,8 +40,10 @@ export async function loader({ request, params }) {
     });
   }
 
-  return json(await getQRCode(Number(params.id), admin.graphql));
+  const qrCodeId = String(params.id); // Ensure id is a string
+  return json(await getQRCode(qrCodeId, admin.graphql));
 }
+
 
 export async function action({ request, params }) {
   const { session } = await authenticate.admin(request);
@@ -53,8 +55,10 @@ export async function action({ request, params }) {
     shop,
   };
 
+  console.log("Received data:", data); // Add logging to check data
+
   if (data.action === "delete") {
-    await db.qRCode.delete({ where: { id: Number(params.id) } });
+    await db.qRCode.delete({ where: { id: String(params.id) } }); // Ensure id is a string
     return redirect("/app");
   }
 
@@ -67,14 +71,14 @@ export async function action({ request, params }) {
   const qrCode =
     params.id === "new"
       ? await db.qRCode.create({ data })
-      : await db.qRCode.update({ where: { id: Number(params.id) }, data });
+      : await db.qRCode.update({ where: { id: String(params.id) }, data }); // Ensure id is a string
 
   return redirect(`/app/qrcodes/${qrCode.id}`);
 }
 
+
 export default function QRCodeForm() {
   const errors = useActionData()?.errors || {};
-
   const qrCode = useLoaderData();
   const [formState, setFormState] = useState(qrCode);
   const [cleanFormState, setCleanFormState] = useState(qrCode);
@@ -91,7 +95,7 @@ export default function QRCodeForm() {
   async function selectProduct() {
     const products = await window.shopify.resourcePicker({
       type: "product",
-      action: "select", // customized action verb, either 'select' or 'add',
+      action: "select",
     });
 
     if (products) {
@@ -119,9 +123,12 @@ export default function QRCodeForm() {
       destination: formState.destination,
     };
 
+    console.log("Submitting data:", data); // Add logging to check data
+
     setCleanFormState({ ...formState });
     submit(data, { method: "post" });
   }
+
 
   return (
     <Page>
@@ -259,17 +266,15 @@ export default function QRCodeForm() {
                 content: "Delete",
                 loading: isDeleting,
                 disabled: !qrCode.id || !qrCode || isSaving || isDeleting,
-                destructive: true,
-                outline: true,
                 onAction: () =>
                   submit({ action: "delete" }, { method: "post" }),
               },
             ]}
             primaryAction={{
-              content: "Save",
+              content: qrCode.id ? "Save" : "Create",
               loading: isSaving,
-              disabled: !isDirty || isSaving || isDeleting,
               onAction: handleSave,
+              disabled: isSaving,
             }}
           />
         </Layout.Section>

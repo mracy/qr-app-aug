@@ -3,7 +3,7 @@
 client_id = "88ee8df2af931df9d3ef0aeb1ef84b32"
 name = "madolly-qr-app-aug"
 handle = "madolly-qr-app-aug"
-application_url = "https://reviewing-local-conversation-correlation.trycloudflare.com"
+application_url = "https://sept-did-incorporate-tonight.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_customers,read_draft_orders,read_files,read_inventory,read_locati
 
 [auth]
 redirect_urls = [
-  "https://reviewing-local-conversation-correlation.trycloudflare.com/auth/callback",
-  "https://reviewing-local-conversation-correlation.trycloudflare.com/auth/shopify/callback",
-  "https://reviewing-local-conversation-correlation.trycloudflare.com/api/auth/callback"
+  "https://sept-did-incorporate-tonight.trycloudflare.com/auth/callback",
+  "https://sept-did-incorporate-tonight.trycloudflare.com/auth/shopify/callback",
+  "https://sept-did-incorporate-tonight.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

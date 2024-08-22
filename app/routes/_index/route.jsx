@@ -1,8 +1,9 @@
 import { json, redirect } from "@remix-run/node";
 import { Form, useLoaderData } from "@remix-run/react";
-import { login } from "../../shopify.server";
 import styles from "./styles.module.css";
+import { login } from "../../shopify.server";
 
+// Define loader function for Remix
 export const loader = async ({ request }) => {
   const url = new URL(request.url);
 
@@ -13,6 +14,7 @@ export const loader = async ({ request }) => {
   return json({ showForm: Boolean(login) });
 };
 
+// Define the main App component
 export default function App() {
   const { showForm } = useLoaderData();
 
