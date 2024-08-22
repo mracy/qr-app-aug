@@ -34,7 +34,7 @@ model QRCode {
   productHandle    String
   productVariantId String
   destination      String
-  scans            Int
+  scans            Int       @default(0)
   createdAt        DateTime @default(now())
 }
 
