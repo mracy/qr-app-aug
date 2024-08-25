@@ -20,10 +20,10 @@ model Session {
   firstName      String?
   lastName       String?
   email          String?
-  accountOwner   Boolean    @default(false)
+  accountOwner   Boolean   @default(false)
   locale         String?
-  collaborator   Boolean    @default(false)
-  emailVerified  Boolean    @default(false)
+  collaborator   Boolean   @default(false)
+  emailVerified  Boolean   @default(false)
 }
 
 model QRCode {
@@ -34,9 +34,31 @@ model QRCode {
   productHandle    String
   productVariantId String
   destination      String
-  scans            Int
+  scans            Int      @default(0)
   createdAt        DateTime @default(now())
 }
 
+model Product {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  shopifyId String    @unique
+  title     String
+  variants  Variant[] @relation("ProductVariants")
+  images    Image[]   @relation("ProductImages")
+}
 
+model Variant {
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  shopifyId String  @unique
+  title     String
+  price     Float
+  productId String
+  product   Product @relation("ProductVariants", fields: [productId], references: [id])
+}
 
+model Image {
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  shopifyId String  @unique
+  src       String
+  productId String
+  product   Product @relation("ProductImages", fields: [productId], references: [id])
+}

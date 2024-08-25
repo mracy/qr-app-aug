@@ -1,0 +1,64 @@
+type Session {
+  sessionId: ID!
+  id: String!
+  shop: String!
+  state: String!
+  isOnline: Boolean!
+  scope: String
+  expires: String
+  accessToken: String!
+  userId: BigInt
+  firstName: String
+  lastName: String
+  email: String
+  accountOwner: Boolean
+  locale: String
+  collaborator: Boolean
+  emailVerified: Boolean
+}
+
+type QRCode {
+  id: ID!
+  title: String!
+  shop: String!
+  productId: String!
+  productHandle: String!
+  productVariantId: String!
+  destination: String!
+  scans: Int!
+  createdAt: String!
+}
+
+type Query {
+  sessions: [Session!]!
+  session(sessionId: ID!): Session
+  qrCodes: [QRCode!]!
+  qrCode(id: ID!): QRCode
+}
+
+type Mutation {
+  createSession(
+    id: String!,
+    shop: String!,
+    state: String!,
+    isOnline: Boolean!,
+    accessToken: String!,
+    userId: BigInt,
+    firstName: String,
+    lastName: String,
+    email: String,
+    accountOwner: Boolean,
+    locale: String,
+    collaborator: Boolean,
+    emailVerified: Boolean
+  ): Session!
+
+  createQRCode(
+    title: String!,
+    shop: String!,
+    productId: String!,
+    productHandle: String!,
+    productVariantId: String!,
+    destination: String!
+  ): QRCode!
+}

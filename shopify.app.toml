@@ -3,7 +3,7 @@
 client_id = "88ee8df2af931df9d3ef0aeb1ef84b32"
 name = "madolly-qr-app-aug"
 handle = "madolly-qr-app-aug"
-application_url = "https://sept-did-incorporate-tonight.trycloudflare.com"
+application_url = "https://webshots-bowl-gospel-texture.trycloudflare.com"
 embedded = true
 
 [build]
@@ -13,13 +13,13 @@ include_config_on_deploy = true
 
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
-scopes = "read_customers,read_draft_orders,read_files,read_inventory,read_locations,read_orders,read_products,read_themes,write_customers,write_draft_orders,write_files,write_inventory,write_locations,write_orders,write_products,write_themes"
+scopes = "read_cash_tracking,read_customers,read_draft_orders,read_files,read_inventory,read_locations,read_orders,read_products,read_themes,write_customers,write_draft_orders,write_files,write_inventory,write_locations,write_orders,write_products,write_themes"
 
 [auth]
 redirect_urls = [
-  "https://sept-did-incorporate-tonight.trycloudflare.com/auth/callback",
-  "https://sept-did-incorporate-tonight.trycloudflare.com/auth/shopify/callback",
-  "https://sept-did-incorporate-tonight.trycloudflare.com/api/auth/callback"
+  "https://webshots-bowl-gospel-texture.trycloudflare.com/auth/callback",
+  "https://webshots-bowl-gospel-texture.trycloudflare.com/auth/shopify/callback",
+  "https://webshots-bowl-gospel-texture.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
