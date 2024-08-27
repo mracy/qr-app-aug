@@ -114,7 +114,7 @@ export default function Index() {
           <Layout.Section>
             <Card padding="0">
               {qrCodes.length === 0 ? (
-                <EmptyQRCodeState onAction={() => navigate("qrcodes/new")} />
+                <EmptyQRCodeState onAction={() => navigate("/app/qrcodes/new")} />
               ) : (
                 <QRTable qrCodes={qrCodes} />
               )}

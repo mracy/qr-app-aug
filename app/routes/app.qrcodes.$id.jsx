@@ -93,24 +93,35 @@ export default function QRCodeForm() {
   const navigate = useNavigate();
 
   async function selectProduct() {
-    const products = await window.shopify.resourcePicker({
-      type: "product",
-      action: "select",
-    });
+      // Retrieve the currently selected product ID from the form state
+      const selectedProductId = formState.productId;
 
-    if (products) {
-      const { images, id, variants, title, handle } = products[0];
+      try {
+          // Open the Shopify resource picker
+          const products = await window.shopify.resourcePicker({
+              type: "product",
+              action: "select",
+              // Preselect the product if there's an ID in the form state
+              selectionIds: selectedProductId ? [{id : selectedProductId}] : [],
+          });
 
-      setFormState({
-        ...formState,
-        productId: id,
-        productVariantId: variants[0].id,
-        productTitle: title,
-        productHandle: handle,
-        productAlt: images[0]?.altText,
-        productImage: images[0]?.originalSrc,
-      });
-    }
+          // If products were selected, update the form state
+          if (products && products.length > 0) {
+              const { images, id, variants, title, handle } = products[0];
+              setFormState({
+                  ...formState,
+                  productId: id,
+                  productVariantId: variants[0].id,
+                  productTitle: title,
+                  productHandle: handle,
+                  productAlt: images[0]?.altText,
+                  productImage: images[0]?.originalSrc,
+                  isSelected: true, // Mark the product as selected
+              });
+          }
+      } catch (error) {
+          console.error('Error selecting product:', error);
+      }
   }
 
   const submit = useSubmit();
@@ -142,13 +153,13 @@ export default function QRCodeForm() {
           <BlockStack gap="500">
             <Card>
               <BlockStack gap="500">
-                <Text as={"h2"} variant="headingLg">
+                <Text as="h2" variant="headingLg">
                   Title
                 </Text>
                 <TextField
                   id="title"
                   helpText="Only store staff can see this title"
-                  label="title"
+                  label="Title"
                   labelHidden
                   autoComplete="off"
                   value={formState.title}
@@ -160,24 +171,25 @@ export default function QRCodeForm() {
             <Card>
               <BlockStack gap="500">
                 <InlineStack align="space-between">
-                  <Text as={"h2"} variant="headingLg">
+                  <Text as="h2" variant="headingLg">
                     Product
                   </Text>
-                  {formState.productId ? (
-                    <Button variant="plain" onClick={selectProduct}>
-                      Change product
-                    </Button>
-                  ) : null}
                 </InlineStack>
                 {formState.productId ? (
                   <InlineStack blockAlign="center" gap="500">
                     <Thumbnail
                       source={formState.productImage || ImageIcon}
-                      alt={formState.productAlt}
+                      alt={formState.productAlt || 'Product Image'}
                     />
                     <Text as="span" variant="headingMd" fontWeight="semibold">
                       {formState.productTitle}
                     </Text>
+                    <span role="img" aria-label="selected">
+                      ✅ {/* Simple tick/checkmark */}
+                    </span>
+                    <Button onClick={selectProduct} variant="plain">
+                      Change product
+                    </Button>
                   </InlineStack>
                 ) : (
                   <BlockStack gap="200">
@@ -230,7 +242,7 @@ export default function QRCodeForm() {
         </Layout.Section>
         <Layout.Section variant="oneThird">
           <Card>
-            <Text as={"h2"} variant="headingLg">
+            <Text as="h2" variant="headingLg">
               QR code
             </Text>
             {qrCode ? (

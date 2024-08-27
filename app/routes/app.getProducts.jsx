@@ -1,10 +1,9 @@
-import React from 'react';
-import { json } from '@remix-run/node';
-import { useLoaderData } from '@remix-run/react';
-import { Card, DataTable, Frame, Layout, Page, Text, Thumbnail } from '@shopify/polaris';
-import { authenticate } from '../shopify.server';
+import { json } from "@remix-run/node";
+import { authenticate } from "../shopify.server";
+import { Card, DataTable, Frame, Layout, Page, Text, Thumbnail } from "@shopify/polaris";
+import { useLoaderData } from "@remix-run/react";
 
-// Helper function to fetch paginated data
+// Helper function to fetch data with pagination
 const fetchPaginatedData = async (admin, query, key) => {
   let allData = [];
   let hasNextPage = true;
@@ -28,7 +27,7 @@ export const loader = async ({ request }) => {
     // Authenticate and fetch products, orders, and locations
     const { admin } = await authenticate.admin(request);
 
-    // Query definitions for products, orders, and locations
+    // Query for products with pagination
     const productsQuery = (cursor) => `
       query {
         products(first: 250${cursor ? `, after: "${cursor}"` : ''}) {
@@ -66,6 +65,7 @@ export const loader = async ({ request }) => {
       }
     `;
 
+    // Query for orders with pagination
     const ordersQuery = (cursor) => `
       query {
         orders(first: 250${cursor ? `, after: "${cursor}"` : ''}) {
@@ -107,6 +107,7 @@ export const loader = async ({ request }) => {
       }
     `;
 
+    // Query for locations with pagination
     const locationsQuery = (cursor) => `
       query {
         locations(first: 250${cursor ? `, after: "${cursor}"` : ''}) {
@@ -200,6 +201,7 @@ export default function Products() {
 
   // Ensure the products data is properly formatted
   const rows = sortedProducts.map((product, index) => {
+    // Assign numerical order to variant IDs
     const variantRows = product.variants.map((variant, idx) => ({
       ...variant,
       order: idx + 1

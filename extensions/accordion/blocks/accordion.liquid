@@ -1,0 +1,27 @@
+{{ 'accordie.css' | asset_url | stylesheet_tag }}
+
+<details class="accordie-app">
+  <summary>{{ block.settings.title }}</summary>
+  <p>{{ block.settings.content }}</p>
+</details>
+
+{% schema %}
+{
+  "name": "Accordion Block",
+  "target": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "Hello World"
+    },
+    {
+      "type": "richtext",
+      "id": "content",
+      "label": "Content",
+      "default": "<p>Describe here your accordion</p>"
+    }
+  ]
+}
+{% endschema %}

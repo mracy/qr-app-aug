@@ -3,7 +3,7 @@
 client_id = "88ee8df2af931df9d3ef0aeb1ef84b32"
 name = "madolly-qr-app-aug"
 handle = "madolly-qr-app-aug"
-application_url = "https://webshots-bowl-gospel-texture.trycloudflare.com"
+application_url = "https://kuwait-times-positive-hormone.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_cash_tracking,read_customers,read_draft_orders,read_files,read_in
 
 [auth]
 redirect_urls = [
-  "https://webshots-bowl-gospel-texture.trycloudflare.com/auth/callback",
-  "https://webshots-bowl-gospel-texture.trycloudflare.com/auth/shopify/callback",
-  "https://webshots-bowl-gospel-texture.trycloudflare.com/api/auth/callback"
+  "https://kuwait-times-positive-hormone.trycloudflare.com/auth/callback",
+  "https://kuwait-times-positive-hormone.trycloudflare.com/auth/shopify/callback",
+  "https://kuwait-times-positive-hormone.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

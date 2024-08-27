@@ -40,25 +40,38 @@ model QRCode {
 
 model Product {
   id        String    @id @default(auto()) @map("_id") @db.ObjectId
-  shopifyId String    @unique
+  productId String    @unique
   title     String
   variants  Variant[] @relation("ProductVariants")
   images    Image[]   @relation("ProductImages")
 }
 
 model Variant {
-  id        String  @id @default(auto()) @map("_id") @db.ObjectId
-  shopifyId String  @unique
-  title     String
-  price     Float
-  productId String
-  product   Product @relation("ProductVariants", fields: [productId], references: [id])
+  id                 String  @id @default(auto()) @map("_id") @db.ObjectId
+  productId          String
+  title              String
+  inventoryQuantity Int
+  imageUrl           String
+  imageAlt           String
+  product            Product @relation("ProductVariants", fields: [productId], references: [productId])
 }
 
 model Image {
   id        String  @id @default(auto()) @map("_id") @db.ObjectId
-  shopifyId String  @unique
-  src       String
   productId String
-  product   Product @relation("ProductImages", fields: [productId], references: [id])
+  src       String
+  altText   String
+  product   Product @relation("ProductImages", fields: [productId], references: [productId])
+}
+
+
+model Customer {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  shopId          String
+  shopCustomerId  String   @unique
+  displayName     String?
+  email           String?
+  phone           String?
+  addresses       String?
+  totalSpent      Float    @default(0)
 }
