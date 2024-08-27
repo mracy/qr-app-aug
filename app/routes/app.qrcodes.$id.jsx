@@ -93,35 +93,62 @@ export default function QRCodeForm() {
   const navigate = useNavigate();
 
   async function selectProduct() {
-      // Retrieve the currently selected product ID from the form state
-      const selectedProductId = formState.productId;
+    // Retrieve the currently selected product ID and variant IDs from the form state
+    const selectedProductId = formState.productId;
+    const productVariantIds = Array.isArray(formState.productVariantId)
+      ? formState.productVariantId
+      : [formState.productVariantId]; // Convert to array if it's a string
 
-      try {
-          // Open the Shopify resource picker
-          const products = await window.shopify.resourcePicker({
-              type: "product",
-              action: "select",
-              // Preselect the product if there's an ID in the form state
-              selectionIds: selectedProductId ? [{id : selectedProductId}] : [],
-          });
+    try {
+      // Open the Shopify resource picker
+      const { selection } = await window.shopify.resourcePicker({
+        type: "product",
+        action: "select",
+        variants: true, // Allow variant selection
+        selectionIds: selectedProductId
+          ? [
+              {
+                id: selectedProductId,
+                variants: productVariantIds.map(variantId => ({ id: variantId })),
+              }
+            ]
+          : [],
+      });
 
-          // If products were selected, update the form state
-          if (products && products.length > 0) {
-              const { images, id, variants, title, handle } = products[0];
-              setFormState({
-                  ...formState,
-                  productId: id,
-                  productVariantId: variants[0].id,
-                  productTitle: title,
-                  productHandle: handle,
-                  productAlt: images[0]?.altText,
-                  productImage: images[0]?.originalSrc,
-                  isSelected: true, // Mark the product as selected
-              });
-          }
-      } catch (error) {
-          console.error('Error selecting product:', error);
+      console.log("Selected products and variants:", selection);
+
+      // If products were selected, update the form state
+      if (selection && selection.length > 0) {
+        const selectedProduct = selection[0];
+        const { images, id, title, handle, variants } = selectedProduct;
+
+        // Find the specific variant that was selected or use a default
+        const selectedVariants = variants.filter(variant =>
+          productVariantIds.includes(variant.id)
+        );
+
+        const selectedVariant = selectedVariants.length > 0
+          ? selectedVariants[0]
+          : (variants.length > 0 ? variants[0] : null);
+
+        // Update the form state with the selected product and variant details
+        setFormState({
+          ...formState,
+          productId: id,
+          productVariantId: selectedVariant?.id || null,
+          productTitle: title,
+          productHandle: handle,
+          productAlt: images[0]?.altText || '',
+          productImage: images[0]?.originalSrc || '',
+          isSelected: true, // Mark the product as selected
+        });
+
+        console.log(`Updated form state with product ID: ${id}`);
+        console.log(`Updated form state with variant ID: ${selectedVariant?.id || 'None'}`);
       }
+    } catch (error) {
+      console.error('Error selecting product:', error);
+    }
   }
 
   const submit = useSubmit();

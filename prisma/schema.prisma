@@ -27,15 +27,18 @@ model Session {
 }
 
 model QRCode {
-  id               String   @id @default(auto()) @map("_id") @db.ObjectId
-  title            String
-  shop             String
-  productId        String
-  productHandle    String
-  productVariantId String
-  destination      String
-  scans            Int      @default(0)
-  createdAt        DateTime @default(now())
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  title             String
+  shop              String
+  productId         String
+  productTitle      String?
+  productImage      String?
+  productHandle     String
+  productVariantId  String
+  destination       String
+  scans             Int      @default(0)
+  createdAt         DateTime @default(now())
+  productDeleted    Boolean  @default(false)
 }
 
 model Product {
