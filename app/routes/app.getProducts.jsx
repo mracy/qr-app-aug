@@ -1,7 +1,11 @@
 import { json } from "@remix-run/node";
 import { authenticate } from "../shopify.server";
+import { PrismaClient } from '@prisma/client';
 import { Card, DataTable, Frame, Layout, Page, Text, Thumbnail } from "@shopify/polaris";
 import { useLoaderData } from "@remix-run/react";
+
+// Initialize Prisma Client
+const prisma = new PrismaClient();
 
 // Helper function to fetch data with pagination
 const fetchPaginatedData = async (admin, query, key) => {
@@ -27,7 +31,7 @@ export const loader = async ({ request }) => {
     // Authenticate and fetch products, orders, and locations
     const { admin } = await authenticate.admin(request);
 
-    // Query for products with pagination
+    // Define queries
     const productsQuery = (cursor) => `
       query {
         products(first: 250${cursor ? `, after: "${cursor}"` : ''}) {
@@ -65,7 +69,6 @@ export const loader = async ({ request }) => {
       }
     `;
 
-    // Query for orders with pagination
     const ordersQuery = (cursor) => `
       query {
         orders(first: 250${cursor ? `, after: "${cursor}"` : ''}) {
@@ -107,7 +110,6 @@ export const loader = async ({ request }) => {
       }
     `;
 
-    // Query for locations with pagination
     const locationsQuery = (cursor) => `
       query {
         locations(first: 250${cursor ? `, after: "${cursor}"` : ''}) {
@@ -123,7 +125,7 @@ export const loader = async ({ request }) => {
       }
     `;
 
-    // Fetch products, orders, and locations
+    // Fetch data
     const products = await fetchPaginatedData(admin, productsQuery, 'products');
     const orders = await fetchPaginatedData(admin, ordersQuery, 'orders');
     const locations = await fetchPaginatedData(admin, locationsQuery, 'locations');
@@ -185,6 +187,58 @@ export const loader = async ({ request }) => {
       product.variants.sort((a, b) => a.id.localeCompare(b.id));
     });
 
+    // Insert or update products, variants, and images in MongoDB
+    await Promise.all(sortedProducts.map(async (product) => {
+      // Upsert product
+      await prisma.product.upsert({
+        where: { productId: product.id },
+        update: {
+          title: product.title,
+        },
+        create: {
+          productId: product.id,
+          title: product.title,
+        }
+      });
+
+      // Ensure the `variants` array exists and is being properly iterated over
+      if (product.variants) {
+       await Promise.all(product.variants.map(async (variant) => {
+         await prisma.variant.upsert({
+           where: { shopifyGID: variant.id },
+           update: {
+             title: variant.title,
+             inventoryQuantity: variant.inventoryQuantity,
+             imageUrl: variant.variantImageUrl,
+             imageAlt: variant.variantImageAlt,
+           },
+           create: {
+             shopifyGID: variant.id,
+             productId: product.id,
+             title: variant.title,
+             inventoryQuantity: variant.inventoryQuantity,
+             imageUrl: variant.variantImageUrl,
+             imageAlt: variant.variantImageAlt,
+           }
+         });
+
+         await prisma.image.upsert({
+           where: { shopifyGID: variant.id },
+           update: {
+             src: variant.variantImageUrl,
+             altText: variant.variantImageAlt,
+           },
+           create: {
+             productId: product.id,
+             src: variant.variantImageUrl,
+             altText: variant.variantImageAlt,
+             shopifyGID: variant.id
+           }
+         });
+       }));
+      }
+    }));
+
     // Prepare locations data
     const locationIds = locations.map(location => location.node.id);
 
@@ -207,59 +261,43 @@ export default function Products() {
       order: idx + 1
     }));
 
-    return [
-      index + 1, // Serial Number
-      <Thumbnail
-        key={product.id}
-        source={product.imageUrl}
-        alt={product.imageAlt}
-      />,
-      product.title, // Title in the second column
-      product.id, // Product ID
-      variantRows.map(variant => (
-        <p key={variant.id}>
-          {`${variant.order}. ${variant.id}`}
-        </p>
-      )), // Variant IDs with each ID on a new line
-      variantRows.map(variant => (
-        <div key={variant.id}>
-          <Thumbnail
-            source={variant.variantImageUrl}
-            alt={variant.variantImageAlt}
-          />
-          <p>{`${variant.title}: ${variant.inventoryQuantity}`}</p>
-        </div>
-      )).reduce((prev, curr) => [prev, ', ', curr]), // Variant Details with images
-      product.totalQuantity // Total Quantity Sold in the last column
-    ];
+    return {
+      id: index + 1,
+      title: product.title,
+      image: product.imageUrl,
+      variants: variantRows,
+      totalQuantity: product.totalQuantity
+    };
   });
 
   return (
-    <Frame>
-      <Page fullWidth>
-        <Layout>
-          <Layout.Section>
-            <Card>
-              <Text as="h2" variant="headingMd">
-                Products List
-              </Text>
-              <DataTable
-                columnContentTypes={['text', 'text', 'text', 'text', 'text', 'text']}
-                headings={['S.N.', 'Image', 'Title', 'Product ID', 'Variant IDs', 'Variant Details', 'Total Quantity Sold']}
-                rows={rows}
-              />
-              <Text as="h3" variant="headingSm">
-                Location IDs
-              </Text>
-              <ul>
-                {locationIds.map(id => (
-                  <li key={id}>{id}</li>
-                ))}
-              </ul>
-            </Card>
-          </Layout.Section>
-        </Layout>
-      </Page>
-    </Frame>
+    <Page>
+      <Layout>
+        <Layout.Section>
+          <Card title="Product List">
+            <DataTable
+              columnContentTypes={[
+                'text',
+                'text',
+                'text',
+                'text'
+              ]}
+              headings={[
+                'ID',
+                'Title',
+                'Image',
+                'Total Quantity'
+              ]}
+              rows={rows.map(product => [
+                product.id,
+                product.title,
+                <Thumbnail source={product.image} alt={product.title} />,
+                product.totalQuantity,
+              ])}
+            />
+          </Card>
+        </Layout.Section>
+      </Layout>
+    </Page>
   );
 }

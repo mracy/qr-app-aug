@@ -1,45 +1,84 @@
+// app/routes/customers.jsx
+
 import { json } from "@remix-run/node";
-import { authenticate } from "../shopify.server";
+import { authenticate } from "../shopify.server"; // Import your Shopify authentication method
+import { PrismaClient } from '@prisma/client';
 import { Card, DataTable, Frame, Layout, Page, Text } from "@shopify/polaris";
 import { useLoaderData } from "@remix-run/react";
 
+// Initialize Prisma Client
+const prisma = new PrismaClient();
+
+// Loader function to fetch customer data from Shopify and store it in MongoDB
 export const loader = async ({ request }) => {
-  const { admin } = await authenticate.admin(request);
-  const response = await admin.graphql(`
-    query {
-      customers(first: 250) {
-        edges {
-          node {
-            id
-            displayName
-            email
-            phone
-            addresses {
-              address1
+  try {
+    // Authenticate with Shopify
+    const { admin, session } = await authenticate.admin(request);
+    const response = await admin.graphql(`
+      query {
+        customers(first: 250) {
+          edges {
+            node {
+              id
+              displayName
+              email
+              phone
+              addresses {
+                address1
+              }
             }
           }
         }
       }
-    }
-  `);
+    `);
 
-  const responseJson = await response.json();
-  const customers = responseJson.data.customers.edges;
+    // Parse the response
+    const responseJson = await response.json();
+    const customers = responseJson.data.customers.edges;
 
-  const customerList = customers.map(customer => ({
-    id: customer.node.id,
-    displayName: customer.node.displayName || 'N/A',
-    email: customer.node.email || 'N/A',
-    phone: customer.node.phone || 'N/A',
-    addresses: customer.node.addresses.map(addr => addr.address1).join(', ') || 'N/A'
-  }));
+    const customerList = customers.map(customer => ({
+      id: customer.node.id,
+      displayName: customer.node.displayName || 'N/A',
+      email: customer.node.email || 'N/A',
+      phone: customer.node.phone || 'N/A',
+      addresses: customer.node.addresses.map(addr => addr.address1).join(', ') || 'N/A'
+    }));
 
-  // Sort customers alphabetically by displayName
-  const sortedCustomers = customerList.sort((a, b) => a.displayName.localeCompare(b.displayName));
+    // Extract shopId from session data
+    const shopId = session.shop; // Adjust based on your session structure
 
-  return json(sortedCustomers);
+    // Insert or update customers in MongoDB
+    await Promise.all(customerList.map(async (customer) => {
+      await prisma.customer.upsert({
+        where: { shopCustomerId: customer.id },
+        update: {
+          displayName: customer.displayName,
+          email: customer.email,
+          phone: customer.phone,
+          addresses: customer.addresses
+        },
+        create: {
+          shopId: shopId,
+          shopCustomerId: customer.id,
+          displayName: customer.displayName,
+          email: customer.email,
+          phone: customer.phone,
+          addresses: customer.addresses
+        }
+      });
+    }));
+
+    // Sort customers alphabetically by displayName
+    const sortedCustomers = customerList.sort((a, b) => a.displayName.localeCompare(b.displayName));
+
+    return json(sortedCustomers);
+  } catch (error) {
+    console.error('Error:', error);
+    return json({ error: 'Failed to load customer data' });
+  }
 };
 
+// React component to display customer data
 export default function Customers() {
   const customers = useLoaderData();
 

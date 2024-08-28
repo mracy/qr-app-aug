@@ -45,36 +45,38 @@ model Product {
   id        String    @id @default(auto()) @map("_id") @db.ObjectId
   productId String    @unique
   title     String
-  variants  Variant[] @relation("ProductVariants")
-  images    Image[]   @relation("ProductImages")
+  variants  Variant[]
+  images    Image[]
 }
 
 model Variant {
-  id                 String  @id @default(auto()) @map("_id") @db.ObjectId
-  productId          String
-  title              String
+  id               String  @id @default(auto()) @map("_id") @db.ObjectId
+  shopifyGID       String  @unique
+  productId        String
+  title            String
   inventoryQuantity Int
-  imageUrl           String
-  imageAlt           String
-  product            Product @relation("ProductVariants", fields: [productId], references: [productId])
+  imageUrl         String
+  imageAlt         String
+  product          Product @relation( fields: [productId], references: [productId])
 }
+
 
 model Image {
-  id        String  @id @default(auto()) @map("_id") @db.ObjectId
-  productId String
-  src       String
-  altText   String
-  product   Product @relation("ProductImages", fields: [productId], references: [productId])
+  id                 String  @id @default(auto()) @map("_id") @db.ObjectId
+  shopifyGID         String  @unique
+  productId          String  @unique
+  src                String
+  altText            String
+  product            Product @relation( fields: [productId], references: [productId])
 }
-
 
 model Customer {
   id             String   @id @default(auto()) @map("_id") @db.ObjectId
-  shopId          String
-  shopCustomerId  String   @unique
-  displayName     String?
-  email           String?
-  phone           String?
-  addresses       String?
-  totalSpent      Float    @default(0)
+  shopId         String
+  shopCustomerId String   @unique
+  displayName    String?
+  email          String?
+  phone          String?
+  addresses      String?
+  totalSpent     Float    @default(0)
 }

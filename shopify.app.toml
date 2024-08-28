@@ -3,7 +3,7 @@
 client_id = "88ee8df2af931df9d3ef0aeb1ef84b32"
 name = "madolly-qr-app-aug"
 handle = "madolly-qr-app-aug"
-application_url = "https://episodes-retrieved-careful-xp.trycloudflare.com"
+application_url = "https://produced-memo-francis-instances.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_cash_tracking,read_customers,read_draft_orders,read_files,read_in
 
 [auth]
 redirect_urls = [
-  "https://episodes-retrieved-careful-xp.trycloudflare.com/auth/callback",
-  "https://episodes-retrieved-careful-xp.trycloudflare.com/auth/shopify/callback",
-  "https://episodes-retrieved-careful-xp.trycloudflare.com/api/auth/callback"
+  "https://produced-memo-francis-instances.trycloudflare.com/auth/callback",
+  "https://produced-memo-francis-instances.trycloudflare.com/auth/shopify/callback",
+  "https://produced-memo-francis-instances.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
